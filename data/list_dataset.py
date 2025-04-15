@@ -86,6 +86,7 @@ class ListDataset(data.Dataset):
     
     # Function that create the list of pairs (img_path, mask_path)
     # Adapt this function for your dataset and fold structure
+    # diubah
     def make_dataset(self):
 
         # Making sure the mode is correct.
@@ -406,6 +407,7 @@ class ListDataset(data.Dataset):
     # Function to load images and masks
     # May need adaptation to your data
     # Returns: img, mask, (path_to_img, img_filename)
+    # diubah
     def get_data(self, index):
         img_path, msk_path = self.imgs[index]
 
