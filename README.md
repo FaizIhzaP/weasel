@@ -60,3 +60,5 @@ If you use this code, please cite:
 If you find any issues or have any problem let us know. You can open a new issue, or contact us via email:
 - **Pedro Henrique Targino Gama** \([@pedrohtg](https://github.com/pedrohtg)\) : phtg [at] dcc<i></i>.ufmg.br 
 - **Hugo Oliveira** \([@hugo-oliveira](https://github.com/hugo-oliveira)\) oliveirahugo [at] vision<i></i>.ime.usp.br 
+
+contact us: 
