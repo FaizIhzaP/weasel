@@ -9,7 +9,7 @@ from torch import nn
 from sklearn import metrics
 from matplotlib import pyplot as plt
 
-from torchmeta import modules
+# from torchmeta import modules
 
 from collections import OrderedDict
 

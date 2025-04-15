@@ -2,22 +2,23 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from torchmeta import modules
+from torchmeta import MetaConv2d, MetaLinear, MetaBatchNorm2d, MetaModule, MetaSequential
+# from torchmeta import modules
 
 from collections import OrderedDict
 
 def initialize_weights(*models):
     for model in models:
         for module in model.modules():
-            if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear) or isinstance(module, modules.MetaConv2d) or isinstance(module, modules.MetaLinear):
+            if isinstance(module, nn.Conv2d) or isinstance(module, nn.Linear) or isinstance(module, MetaConv2d) or isinstance(module, MetaLinear):
                 nn.init.kaiming_normal_(module.weight)
                 if module.bias is not None:
                     module.bias.data.zero_()
-            elif isinstance(module, nn.BatchNorm2d) or isinstance(module, modules.MetaBatchNorm2d):
+            elif isinstance(module, nn.BatchNorm2d) or isinstance(module, MetaBatchNorm2d):
                 module.weight.data.fill_(1)
                 module.bias.data.zero_()
 
-class MetaConvTranspose2d(nn.ConvTranspose2d, modules.MetaModule):
+class MetaConvTranspose2d(nn.ConvTranspose2d, MetaModule):
     __doc__ = nn.ConvTranspose2d.__doc__
 
     def forward(self, input, output_size=None, params=None):
@@ -36,18 +37,18 @@ class MetaConvTranspose2d(nn.ConvTranspose2d, modules.MetaModule):
             input, weights, bias, self.stride, self.padding,
             output_padding, self.groups, self.dilation)
 
-class _MetaEncoderBlock(modules.MetaModule):
+class _MetaEncoderBlock(MetaModule):
 
     def __init__(self, in_channels, out_channels, dropout=False):
 
         super(_MetaEncoderBlock, self).__init__()
 
         layers = [
-            modules.MetaConv2d(in_channels, out_channels, kernel_size=3, padding=1),
-            modules.MetaBatchNorm2d(out_channels),
+            MetaConv2d(in_channels, out_channels, kernel_size=3, padding=1),
+            MetaBatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            modules.MetaConv2d(out_channels, out_channels, kernel_size=3, padding=1),
-            modules.MetaBatchNorm2d(out_channels),
+            MetaConv2d(out_channels, out_channels, kernel_size=3, padding=1),
+            MetaBatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         ]
 
@@ -57,25 +58,25 @@ class _MetaEncoderBlock(modules.MetaModule):
 
         layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
 
-        self.encode = modules.MetaSequential(*layers)
+        self.encode = MetaSequential(*layers)
 
     def forward(self, x, params=None):
 
         return self.encode(x, self.get_subdict(params, 'encode'))
 
-class _MetaDecoderBlock(modules.MetaModule):
+class _MetaDecoderBlock(MetaModule):
 
     def __init__(self, in_channels, middle_channels, out_channels):
 
         super(_MetaDecoderBlock, self).__init__()
 
-        self.decode = modules.MetaSequential(
+        self.decode = MetaSequential(
             nn.Dropout2d(),
-            modules.MetaConv2d(in_channels, middle_channels, kernel_size=3, padding=1),
-            modules.MetaBatchNorm2d(middle_channels),
+            MetaConv2d(in_channels, middle_channels, kernel_size=3, padding=1),
+            MetaBatchNorm2d(middle_channels),
             nn.ReLU(inplace=True),
-            modules.MetaConv2d(middle_channels, middle_channels, kernel_size=3, padding=1),
-            modules.MetaBatchNorm2d(middle_channels),
+            MetaConv2d(middle_channels, middle_channels, kernel_size=3, padding=1),
+            MetaBatchNorm2d(middle_channels),
             nn.ReLU(inplace=True),
             MetaConvTranspose2d(middle_channels, out_channels, kernel_size=2, stride=2, padding=0, output_padding=0)
         )
@@ -85,7 +86,7 @@ class _MetaDecoderBlock(modules.MetaModule):
         return self.decode(x, self.get_subdict(params, 'decode'))
 
 
-class UNet(modules.MetaModule):
+class UNet(MetaModule):
 
     def __init__(self, input_channels, num_classes, prototype=False):
 
@@ -102,18 +103,18 @@ class UNet(modules.MetaModule):
         self.dec3 = _MetaDecoderBlock(256, 128, 64)
         self.dec2 = _MetaDecoderBlock(128, 64, 32)
 
-        self.dec1 = modules.MetaSequential(
+        self.dec1 = MetaSequential(
             nn.Dropout2d(),
-            modules.MetaConv2d(64, 32, kernel_size=3, padding=1),
-            modules.MetaBatchNorm2d(32),
+            MetaConv2d(64, 32, kernel_size=3, padding=1),
+            MetaBatchNorm2d(32),
             nn.ReLU(inplace=True),
-            modules.MetaConv2d(32, 32, kernel_size=3, padding=1),
-            modules.MetaBatchNorm2d(32),
+            MetaConv2d(32, 32, kernel_size=3, padding=1),
+            MetaBatchNorm2d(32),
             nn.ReLU(inplace=True),
         )
 
         if not self.prototype:
-            self.final = modules.MetaConv2d(32, num_classes, kernel_size=1)
+            self.final = MetaConv2d(32, num_classes, kernel_size=1)
         
         initialize_weights(self)
 
