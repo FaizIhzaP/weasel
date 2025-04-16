@@ -69,11 +69,11 @@ class ListDataset(data.Dataset):
         items = []
 
         # Path ke folder input dan mask
-        img_path = os.path.join(self.root, 'Input')
-        msk_path = os.path.join(self.root, 'Groundtruth')
+        img_path = os.path.join(self.root, 'input')
+        msk_path = os.path.join(self.root, 'groundtruth')
 
         # Ambil semua nama file dari folder Input
-        data_list = sorted(os.listdir(img_path))  # jaga konsistensi urutan
+        data_list = sorted(os.listdir(img_path))
 
         # Optional: acak kalau perlu
         random.seed(int(self.fold))
