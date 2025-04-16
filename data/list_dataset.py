@@ -88,38 +88,34 @@ class ListDataset(data.Dataset):
     # Adapt this function for your dataset and fold structure
     # diubah
     def make_dataset(self):
-
-        # Making sure the mode is correct.
-        assert self.mode in ['train', 'test', 'meta_train', 'meta_test', 'tune_train', 'tune_test']
         items = []
-        
-        # Setting string for the mode.
-        mode_str = ''
-        if 'train' in self.mode:
-            mode_str = 'trn' if self.imgtype == 'med' else 'train'
-        elif 'test' in self.mode:
-            mode_str = 'tst' if self.imgtype == 'med' else 'val'
 
-        # Joining input paths.
-        img_path = os.path.join(self.root, self.dataset, 'images')
-        msk_path = os.path.join(self.root, self.dataset, 'ground_truths', self.task)
+        # Path ke folder input dan mask
+        img_path = os.path.join(self.root, 'Input')
+        msk_path = os.path.join(self.root, 'Groundtruth')
 
-        # Reading paths from file.
-        data_list = []
-        data_list = [l.strip('\n') for l in open(os.path.join(self.root, self.dataset, self.task + '_' + mode_str + '_f' + str(self.fold) + '_few_shot.txt')).readlines()]
-        
+        # Ambil semua nama file dari folder Input
+        data_list = sorted(os.listdir(img_path))  # jaga konsistensi urutan
+
+        # Optional: acak kalau perlu
         random.seed(int(self.fold))
         random.shuffle(data_list)
 
+        # Ambil hanya sejumlah num_shots jika diminta
         if self.num_shots != -1 and self.num_shots <= len(data_list):
             data_list = data_list[:self.num_shots]
-        
-        # Creating list containing image and ground truth paths.
+
+        # Buat list pasangan (input, groundtruth)
         for it in data_list:
-            item = (os.path.join(img_path, it), os.path.join(msk_path, it))
-            items.append(item)
+            base_name = os.path.splitext(it)[0]  # ISIC_0000000
+            input_file = os.path.join(img_path, it)
+            mask_file = os.path.join(msk_path, base_name + '_segmentation.png')
         
-        # Returning list.
+            if os.path.exists(input_file) and os.path.exists(mask_file):
+                items.append((input_file, mask_file))
+            else:
+                print(f"Warning: file missing for {base_name}")
+                
         return items
     
         
