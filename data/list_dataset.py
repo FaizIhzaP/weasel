@@ -17,36 +17,14 @@ from skimage import img_as_float
 from skimage import data as skdata
 
 '''
-# This class ListDataset use the dataset name and task name to load the respectives images accordingly, modify this class to your use case
-# For a simple loader, this version is implemented considering the following folder scheme:
-
-/datasets_root_folder
-|--- dataset_1
-     |--- images
-     |--- ground_truths
-     |--- fold_0_img_list.txt
-
-     ...
-     |--- fold_k_img_list.txt
-|--- dataset_2
-     |--- images
-     |--- ground_truths
-     |--- fold_0_img_list.txt
-
-     ...
-     |--- fold_k_img_list.txt
-...
-|--- dataset_n
-     |--- images
-     |--- ground_truths
-     |--- fold_0_img_list.txt
-
-     ...
-     |--- fold_k_img_list.txt
+Struktur dataset:
+|--- isic-2018
+     |--- input
+     |--- groundtruth
 '''
 
 # Constants.
-root = 'dataset' # The /datasets_root_folder/ in the scheme above
+root = 'isic-2018'
 
 annot_types = ['points', 'regions', 'skels', 'contours', 'grid', 'dense', 'random']
 
